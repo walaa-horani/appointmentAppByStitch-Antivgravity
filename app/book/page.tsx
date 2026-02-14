@@ -10,6 +10,7 @@ interface Service {
     description: string
     duration: number
     price: number
+    category?: string
 }
 
 interface Doctor {
@@ -36,6 +37,7 @@ export default function BookAppointmentPage() {
     const [patientEmail, setPatientEmail] = useState('')
     const [patientPhone, setPatientPhone] = useState('')
     const [notes, setNotes] = useState('')
+    const [takenSlots, setTakenSlots] = useState<string[]>([])
 
     const timeSlots = [
         '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
@@ -62,6 +64,18 @@ export default function BookAppointmentPage() {
         }
         fetchData()
     }, [])
+
+    useEffect(() => {
+        if (selectedDoctor && selectedDate) {
+            setTakenSlots([])
+            fetch(`/api/availability?doctorId=${selectedDoctor}&date=${selectedDate}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.takenSlots) setTakenSlots(data.takenSlots)
+                })
+                .catch(err => console.error('Error fetching availability:', err))
+        }
+    }, [selectedDoctor, selectedDate])
 
     useEffect(() => {
         if (user) {
@@ -135,8 +149,8 @@ export default function BookAppointmentPage() {
                         {['Select Service', 'Choose Doctor', 'Your Info', 'Date & Time'].map((label, i) => (
                             <div key={label} className="flex items-center">
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step > i + 1 ? 'bg-green-500 text-white' :
-                                        step === i + 1 ? 'bg-[var(--color-primary)] text-white' :
-                                            'bg-slate-200 text-slate-500'
+                                    step === i + 1 ? 'bg-[var(--color-primary)] text-white' :
+                                        'bg-slate-200 text-slate-500'
                                     }`}>
                                     {step > i + 1 ? <span className="material-icons text-sm">check</span> : i + 1}
                                 </div>
@@ -164,8 +178,8 @@ export default function BookAppointmentPage() {
                                         key={service.id}
                                         onClick={() => { setSelectedService(service.id); setStep(2) }}
                                         className={`text-left p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${selectedService === service.id
-                                                ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
-                                                : 'border-slate-200 bg-white hover:border-[var(--color-primary)]/50'
+                                            ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
+                                            : 'border-slate-200 bg-white hover:border-[var(--color-primary)]/50'
                                             }`}
                                     >
                                         <h3 className="font-bold text-slate-900 mb-2">{service.name}</h3>
@@ -191,26 +205,28 @@ export default function BookAppointmentPage() {
                                 Choose Specialist
                             </h2>
                             <div className="grid sm:grid-cols-2 gap-4">
-                                {doctors.map((doctor) => (
-                                    <button
-                                        key={doctor.id}
-                                        onClick={() => { setSelectedDoctor(doctor.id); setStep(3) }}
-                                        className={`text-left p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${selectedDoctor === doctor.id
+                                {doctors
+                                    .filter(d => !selectedServiceObj?.category || d.specialization === selectedServiceObj.category || d.specialization.includes(selectedServiceObj.category || ''))
+                                    .map((doctor) => (
+                                        <button
+                                            key={doctor.id}
+                                            onClick={() => { setSelectedDoctor(doctor.id); setStep(3) }}
+                                            className={`text-left p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${selectedDoctor === doctor.id
                                                 ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
                                                 : 'border-slate-200 bg-white hover:border-[var(--color-primary)]/50'
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
-                                                <span className="material-icons text-[var(--color-primary)] text-2xl">person</span>
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-14 h-14 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
+                                                    <span className="material-icons text-[var(--color-primary)] text-2xl">person</span>
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-slate-900">{doctor.name}</h3>
+                                                    <p className="text-sm text-slate-500">{doctor.specialization}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className="font-bold text-slate-900">{doctor.name}</h3>
-                                                <p className="text-sm text-slate-500">{doctor.specialization}</p>
-                                            </div>
-                                        </div>
-                                    </button>
-                                ))}
+                                        </button>
+                                    ))}
                             </div>
                             <button onClick={() => setStep(1)} className="mt-6 text-[var(--color-primary)] font-medium flex items-center gap-1 hover:underline">
                                 <span className="material-icons text-sm">arrow_back</span> Back
@@ -298,18 +314,24 @@ export default function BookAppointmentPage() {
                                         <>
                                             <h4 className="font-semibold text-slate-900 mt-6 mb-3">Available Time Slots</h4>
                                             <div className="grid grid-cols-3 gap-2">
-                                                {timeSlots.map((time) => (
-                                                    <button
-                                                        key={time}
-                                                        onClick={() => setSelectedTime(time)}
-                                                        className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${selectedTime === time
+                                                {timeSlots.map((time) => {
+                                                    const isTaken = takenSlots.includes(time)
+                                                    return (
+                                                        <button
+                                                            key={time}
+                                                            onClick={() => !isTaken && setSelectedTime(time)}
+                                                            disabled={isTaken}
+                                                            className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${selectedTime === time
                                                                 ? 'bg-[var(--color-primary)] text-white'
-                                                                : 'bg-slate-50 text-slate-700 hover:bg-[var(--color-primary)]/10'
-                                                            }`}
-                                                    >
-                                                        {time}
-                                                    </button>
-                                                ))}
+                                                                : isTaken
+                                                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed decoration-slate-400 line-through'
+                                                                    : 'bg-slate-50 text-slate-700 hover:bg-[var(--color-primary)]/10'
+                                                                }`}
+                                                        >
+                                                            {time}
+                                                        </button>
+                                                    )
+                                                })}
                                             </div>
                                         </>
                                     )}

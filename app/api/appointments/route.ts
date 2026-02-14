@@ -52,6 +52,22 @@ export async function POST(req: Request) {
         // Combine date and time if needed, or just use date
         const appointmentDate = new Date(date)
 
+        // Check for conflict
+        const conflict = await prisma.appointment.findFirst({
+            where: {
+                doctorId,
+                date: { equals: appointmentDate },
+                time: time,
+                status: {
+                    not: 'cancelled'
+                }
+            }
+        })
+
+        if (conflict) {
+            return NextResponse.json({ error: 'This time slot is already booked.' }, { status: 409 })
+        }
+
         const appointment = await prisma.appointment.create({
             data: {
                 patientId: userId,

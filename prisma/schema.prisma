@@ -49,6 +49,7 @@ model Service {
   description String
   duration    Int // in minutes
   price       Decimal
+  category    String   @default("General")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
