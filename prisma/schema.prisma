@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  patient
+  doctor
+  admin
+}
+
+enum Status {
+  pending
+  confirmed
+  cancelled
+}
+
+model User {
+  id        String   @id // This will match Clerk ID
+  name      String
+  email     String   @unique
+  role      Role     @default(patient)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor      Doctor?
+  appointments Appointment[]
+}
+
+model Doctor {
+  id             String @id @default(uuid())
+  name           String
+  specialization String
+  image          String?
+  
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  appointments Appointment[]
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  duration    Int // in minutes
+  price       Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  appointments Appointment[]
+}
+
+model Appointment {
+  id        String   @id @default(uuid())
+  date      DateTime
+  time      String // Could be part of date, but separating for clarity if needed. Sticking to DateTime for date+time usually better. Let's use DateTime for date+time.
+  // Actually prompts says: date, time. Let's combine or keep separate. 
+  // "date" usually implies DateTime in Prisma.
+  // I will use DateTime for "date" and handle time within it, or add a specific time string if the user meant separate fields. 
+  // The Prompt: "date", "time". 
+  // I will use DateTime for `date` (representing the slot start) and maybe drop `time` if redundant, OR keep `time` as string if they want specific display time. I'll include `time` as String to match prompt exactly.
+  // Re-reading prompt: "date", "time". 
+  
+  status Status @default(pending)
+  
+  patientId String
+  patient   User   @relation(fields: [patientId], references: [id])
+  
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+  
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
