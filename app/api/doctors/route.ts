@@ -64,7 +64,7 @@ export async function POST(req: Request) {
         }
 
         const doctor = await prisma.doctor.create({
-            data
+            data,
         })
 
         // Update user role to doctor ONLY if userId is provided

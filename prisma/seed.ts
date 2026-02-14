@@ -49,6 +49,61 @@ async function main() {
         }
     }
 
+
+
+    // Seed Doctors
+    const doctors = [
+        {
+            name: 'Dr. Sarah Wilson',
+            specialization: 'Dentist',
+            image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop'
+        },
+        {
+            name: 'Dr. James Carter',
+            specialization: 'Cardiologist',
+            image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=800&auto=format&fit=crop'
+        },
+        {
+            name: 'Dr. Emily Chen',
+            specialization: 'General Practitioner',
+            image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=800&auto=format&fit=crop'
+        }
+    ]
+
+    for (const doc of doctors) {
+        // Simple check by name for seed idempotency
+        const existing = await prisma.doctor.findFirst({ where: { name: doc.name } })
+        if (!existing) {
+            await prisma.doctor.create({ data: doc })
+        } else {
+            await prisma.doctor.update({
+                where: { id: existing.id },
+                data: doc
+            })
+        }
+    }
+
+    // Seed Patients
+    const patients = [
+        { email: 'alice@example.com', name: 'Alice Brown', id: 'user_dummy_1' },
+        { email: 'bob@example.com', name: 'Bob Smith', id: 'user_dummy_2' },
+        { email: 'charlie@example.com', name: 'Charlie Davis', id: 'user_dummy_3' },
+    ]
+
+    for (const p of patients) {
+        const existing = await prisma.user.findUnique({ where: { email: p.email } })
+        if (!existing) {
+            await prisma.user.create({
+                data: {
+                    id: p.id, // Mock ID
+                    email: p.email,
+                    name: p.name,
+                    role: 'patient',
+                }
+            })
+        }
+    }
+
     console.log('Seed data created.')
 }
 
