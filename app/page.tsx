@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import NewsletterSection from './components/NewsletterSection'
 
 export default function Home() {
   return (
@@ -172,42 +173,60 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-slate-50 overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-primary)]/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[var(--color-primary)]/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+      {/* Stats Section */}
+      <section className="py-20 bg-[var(--color-primary)] relative overflow-hidden text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <span className="text-[var(--color-primary)] font-semibold tracking-wide uppercase">Testimonials</span>
-            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-slate-900">What Our Patients Say</h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { name: 'Sarah Jenkins', since: 'Patient since 2021', text: '"The doctors here are incredibly attentive. I felt heard and cared for from the moment I walked in. The facility is spotless and modern."', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCPOfJs4cSElJRD-Y_AoWN__ILDGzvEFiKAvPVf7LPZhFJOwEqnIlXzF7JXkoLyXQoyipeV2dY9LU5eYDdEchf8Z_iumBeg0OpjvkRj7u2p5vRDZuhmNpjuFWIqH0xLdFLoxBdGogpQBr9XbO4vAKR5nhhxALtBrRy4vE_82at21SZIkPSVlMcFhDJw8Cvql8GK1eO6oCtuz0LFJkV6NfKGMmz87UCFEUyUGxSCc72G9hXiZ7Lt7s9REv-sYywT0Yby-kE9XEJMSR5M' },
-              { name: 'Michael Chen', since: 'Patient since 2023', text: '"Booking an appointment online was seamless. The staff was professional and I didn\'t have to wait long. Highly recommended for busy professionals."', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB4Mufa2Ya_jEgrRyzrB3vau51X8WeKbG9Ou7ipheXo47iggepeM9UrImv4kQcavNUEHQTSxuOgUXpaVSPxi2t1UstCsCHQFHOvRJj-oBrwOEfY1ZPDXE5TBgxY8hpjzomsiPr-H3-OQ0G7HNTIn8_IuvPjt5dAy6zJOvb5wyCxbGmX_YecJ6hMT-2WGbchTJK31LzaceguT-zHHOJF0pFhHwvv-6-WNFdzcPCqb39glI6VGZMMS8TESHV6IV93P7hsCKEqwBTWgD0h' },
-              { name: 'Emily Rose', since: 'Mother of two', text: '"The pediatric department is wonderful. My kids actually look forward to their check-ups because Dr. Emily is so great with them."', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDT44mnOAYlojr3-Gmg3AEVL4c2j4hqXmObs_EQPbYUJHZZAYgAXqDzsu-RdCgJDYsHLk7KYldj4JAsvzHQM-_OGcR5lSr2-CnRpLoiTx2TjBEFRDYtQlFiwbZrzikDq4haL8Oo7IeSQ2t-vBdHXiKI-0_PKSILKYgA-1-OIqTDX8jrfq6FURQCstMgK-PYuE5trcTz0_4Nol-Uk5mcWoKKdyfK2iHjGZM5fo7O-aGyln0qCY7FM6s6anJB7kMph4CxbAL-A_p-vl8Q', hideOnSmall: true },
-            ].map((review) => (
-              <div key={review.name} className={`${review.hideOnSmall ? 'hidden lg:block' : ''} bg-white p-8 rounded-2xl shadow-sm border border-slate-100 relative`}>
-                <span className="material-icons text-4xl text-[var(--color-primary)]/20 absolute top-6 right-6">format_quote</span>
-                <div className="flex items-center gap-1 text-yellow-400 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className="material-icons text-sm">star</span>
-                  ))}
+              { count: '10k+', label: 'Patients Treated', icon: 'people' },
+              { count: '50+', label: 'Specialist Doctors', icon: 'medical_services' },
+              { count: '15+', label: 'Years Experience', icon: 'history' },
+              { count: '24/7', label: 'Emergency Care', icon: 'local_hospital' },
+            ].map((stat, index) => (
+              <div key={index} className="p-4 group hover:-translate-y-1 transition-transform duration-300">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-4 text-white group-hover:bg-white group-hover:text-[var(--color-primary)] transition-colors">
+                  <span className="material-icons">{stat.icon}</span>
                 </div>
-                <p className="text-slate-600 mb-6 italic">{review.text}</p>
-                <div className="flex items-center gap-4">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img alt={review.name} className="w-12 h-12 rounded-full object-cover" src={review.img} />
-                  <div>
-                    <h5 className="font-bold text-slate-900">{review.name}</h5>
-                    <p className="text-xs text-slate-500">{review.since}</p>
-                  </div>
-                </div>
+                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.count}</div>
+                <div className="text-blue-100 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-600">Find answers to common questions about our services.</p>
+          </div>
+          <div className="space-y-4">
+            {[
+              { q: 'Do you accept health insurance?', a: 'Yes, we accept most major health insurance plans. Please contact our support team for verification.' },
+              { q: 'How can I book an appointment?', a: 'You can book online through our website, use our mobile app, or call our 24/7 hotline.' },
+              { q: 'What should I bring to my first visit?', a: 'Please bring your ID, insurance card, and any relevant medical records or prescriptions.' },
+              { q: 'Do you offer virtual consultations?', a: 'Yes, we offer telemedicine services for select departments. You can choose this option when booking.' },
+            ].map((faq, i) => (
+              <details key={i} className="group bg-white rounded-xl shadow-sm border border-slate-200">
+                <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                  <span className="font-semibold text-slate-900 group-hover:text-[var(--color-primary)] transition-colors">{faq.q}</span>
+                  <span className="material-icons text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                </summary>
+                <div className="px-6 pb-6 text-slate-600 border-t border-slate-100 pt-4">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <NewsletterSection />
 
       {/* CTA Section */}
       <section className="py-20">
