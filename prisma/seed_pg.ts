@@ -58,7 +58,7 @@ async function main() {
 
     for (const s of services) {
         const res = await client.query('SELECT id FROM "Service" WHERE name = $1', [s.name])
-        if (res.rowCount > 0) {
+        if (res.rowCount != null && res.rowCount > 0) {
             await client.query('UPDATE "Service" SET description = $2, duration = $3, price = $4, category = $5, "updatedAt" = NOW() WHERE id = $1', [res.rows[0].id, s.description, s.duration, s.price, s.category])
         } else {
             await client.query('INSERT INTO "Service" (id, name, description, duration, price, category, "createdAt", "updatedAt") VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW(), NOW())', [s.name, s.description, s.duration, s.price, s.category])
@@ -87,7 +87,7 @@ async function main() {
 
     for (const d of doctors) {
         const res = await client.query('SELECT id FROM "Doctor" WHERE name = $1', [d.name])
-        if (res.rowCount > 0) {
+        if (res.rowCount != null && res.rowCount > 0) {
             await client.query('UPDATE "Doctor" SET specialization = $2, image = $3 WHERE id = $1', [res.rows[0].id, d.specialization, d.image])
         } else {
             await client.query('INSERT INTO "Doctor" (id, name, specialization, image) VALUES (gen_random_uuid(), $1, $2, $3)', [d.name, d.specialization, d.image])
